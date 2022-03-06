@@ -1,0 +1,82 @@
+.pos 0
+irmovq stack, %rsp 
+irmovq root,%rdi
+call max_btree
+halt
+
+#root in %rdi
+#left subtrees max value in %r8
+#right subtrees max value in %rax
+max_btree:
+    irmovq $0x8000000000000000,%rax #Set rax to MIN
+    andq %rdi, %rdi #Set condition codes.
+    je return   #If root = NULL then return immediately
+    pushq %rdi  #For saving root variable
+    mrmovq 8(%rdi),%rdi #Getting left subtree's address
+    call max_btree #First recursion call
+    popq %rdi #Getting root val.
+    pushq %rdi #Saving root val again.
+    pushq %rax  #Left sub tree's max value save it.  
+    mrmovq 16(%rdi),%rdi #GEtting right subtree's address.
+    call max_btree #Second recursion call
+    popq %r8 #Get left subtree's result.
+    popq %rdi #Get root address
+
+
+    #After this line we have root val, left subtree val in r8 and right subtree val in rax. We compare and return max of these.
+    mrmovq (%rdi), %r12 
+    rrmovq %r8,%r11
+    subq %r12,%r11
+    cmovle %r12,%r8
+    rrmovq %rax,%r11
+    subq %r8,%r11    
+    cmovle %r8, %rax
+    ret
+return:
+    ret
+    
+
+
+
+.pos 0x500
+root:
+    .quad 5
+    .quad node7
+    .quad node12
+node7:
+    .quad 7
+    .quad node25
+    .quad node905
+node25:
+    .quad 25
+    .quad 0
+    .quad 0
+node905:
+    .quad 905
+    .quad nodem1
+    .quad 0
+nodem1:
+    .quad -1
+    .quad 0
+    .quad 0
+node12:
+    .quad 12
+    .quad node219
+    .quad nodem10
+node219:
+    .quad 219
+    .quad 0
+    .quad 0
+nodem10:
+    .quad -10
+    .quad 0
+    .quad node331
+node331:
+    .quad 331
+    .quad 0
+    .quad 0
+
+
+.pos 0x1000
+stack:
+
