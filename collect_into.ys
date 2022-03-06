@@ -1,0 +1,143 @@
+.pos 0
+irmovq stack,%rsp
+irmovq root,%rdi
+irmovq array,%rsi
+irmovq 8 ,%rdx
+xorq %rax, %rax
+call collect_into
+halt
+
+collect_into:
+    xorq %rax, %rax
+    andq %rdi,%rdi  
+    je return
+    irmovq 0 ,%r12  ################### 
+    subq %r12,%rdx  #   For first if  #
+    jle return      ###################
+     
+    pushq %rdi
+    mrmovq 8(%rdi),%rdi  #For calling first recursion.
+    pushq %rsi   #Save register values for using it later
+    pushq %rdx
+    call collect_into
+    popq %rdx
+    popq %rsi    #Get registers prev values
+    popq %rdi
+    rrmovq %rdx, %r10
+    subq %rax, %r10
+    je return
+   
+    
+    #Add 8 times left_len to array
+    addq %rax, %rsi
+    addq %rax, %rsi
+    addq %rax, %rsi
+    addq %rax, %rsi
+    addq %rax, %rsi
+    addq %rax, %rsi
+    addq %rax, %rsi
+    addq %rax, %rsi
+  
+    
+    #insert the node value to memory that in %rsi
+    mrmovq (%rdi), %r8
+    rmmovq %r8, (%rsi)
+
+    pushq %rax #it is neccessary to push, if not we lost this value.
+
+    #For right subtree
+    pushq %rdi
+    mrmovq 16(%rdi),%rdi
+           
+    pushq %rsi   
+    #Add 8 times 1 to array variable namely %rsi
+    irmovq  1 ,%r14
+    addq %r14, %rsi
+    addq %r14, %rsi
+    addq %r14, %rsi
+    addq %r14, %rsi
+    addq %r14, %rsi
+    addq %r14, %rsi
+    addq %r14, %rsi
+    addq %r14, %rsi
+    
+    pushq %rdx
+    subq %rax, %rdx
+    subq %r14, %rdx
+     
+    call collect_into
+    popq %rdx    
+    popq %rsi
+    popq %rdi
+    popq %r13 # get prev calls return value. In rax we have right_len variable. %r13 is left_len variable.
+    addq %r14, %rax    
+    addq %r13, %rax
+    ret
+return:
+    ret
+
+
+
+
+#In order traversal result 3 4 5 6 8 11 17 19 24 40 52
+.pos 0x400
+root:
+    .quad 17
+    .quad node6
+    .quad node24
+node6:
+    .quad 6
+    .quad node4
+    .quad node11
+node4:
+    .quad 4
+    .quad node3
+    .quad node5
+node3:
+    .quad 3
+    .quad 0
+    .quad 0
+node5:
+    .quad 5
+    .quad 0
+    .quad 0
+node11:
+    .quad 11
+    .quad node8
+    .quad 0
+node8:
+    .quad 8
+    .quad 0
+    .quad 0
+node24:
+    .quad 24
+    .quad node19
+    .quad node40
+node19:
+    .quad 19
+    .quad 0
+    .quad 0
+node40:
+    .quad 40
+    .quad 0
+    .quad node52
+node52:
+    .quad 52
+    .quad 0
+    .quad 0
+
+
+.pos 0x200
+array:
+    .quad 0
+    .quad 0
+    .quad 0
+    .quad 0
+    .quad 0
+    .quad 0
+    .quad 0
+    .quad 0
+    
+
+.pos 0x1000
+stack:
