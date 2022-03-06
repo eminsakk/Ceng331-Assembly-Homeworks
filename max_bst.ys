@@ -1,0 +1,83 @@
+.pos 0
+irmovq stack,%rsp
+irmovq root, %rdi
+call max_bst
+halt
+
+
+max_bst:
+    xorq %rax,%rax  #set return value to 0.
+    jmp if_clause
+
+
+while:
+    mrmovq 16(%rdi),%r8 #Here we send address of the right subtree's root to %r8. 
+
+while_check: #This label is for checking next right subtree's address is NULL or not.
+    andq %r8,%r8 #Control
+    jne exec #If it is not Null jump to exec label.
+    mrmovq (%rdi),%rax #If next right subtree address is NULL then we are in correct address according to %rdi register.Here we set %rax to (%rdi) value because btree's value is at 0 offset. 
+    ret
+
+exec:# We have to update the register %rsi
+    rrmovq %r8, %rdi #Updating register %rsi
+    jmp while #Jump to while again, because our new root is not NULL.
+
+if_clause: #This label controls whether the root is NULL or not.
+    andq %rdi,%rdi #Control root is NULL or not
+    jne while #if not Jump to while label
+    ret
+
+
+
+# A sample eleven-element BST. Absolutely positioned
+# to avoid confusion when debugging.
+.pos 0x200
+root:
+    .quad 17
+    .quad node6
+    .quad node24
+node6:
+    .quad 6
+    .quad node4
+    .quad node11
+node4:
+    .quad 4
+    .quad node3
+    .quad node5
+node3:
+    .quad 3
+    .quad 0
+    .quad 0
+node5:
+    .quad 5
+    .quad 0
+    .quad 0
+node11:
+    .quad 11
+    .quad node8
+    .quad 0
+node8:
+    .quad 8
+    .quad 0
+    .quad 0
+node24:
+    .quad 24
+    .quad node19
+    .quad node40
+node19:
+    .quad 19
+    .quad 0
+    .quad 0
+node40:
+    .quad 40
+    .quad 0
+    .quad node52
+node52:
+    .quad 52
+    .quad 0
+    .quad 0
+
+.pos 0x500
+stack:
+
